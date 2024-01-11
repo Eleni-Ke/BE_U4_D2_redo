@@ -32,7 +32,7 @@ usersRouter.post("/", (req, res) => {
   const users = JSON.parse(fs.readFileSync(usersJSONPath));
   users.push(newUser);
   fs.writeFileSync(usersJSONPath, JSON.stringify(users));
-  res.send({ id: newUser.id });
+  res.status(201).send({ id: newUser.id });
 });
 
 usersRouter.get("/", (req, res) => {
