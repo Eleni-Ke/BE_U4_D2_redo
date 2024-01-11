@@ -42,15 +42,28 @@ usersRouter.get("/", (req, res) => {
 });
 
 usersRouter.get("/:userId", (req, res) => {
-  res.send(" /users");
+  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
+  const user = usersArray.find((user) => user.id === req.params.userId);
+  res.send(user);
 });
 
 usersRouter.put("/:userId", (req, res) => {
-  res.send(" /users");
+  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
+  const index = usersArray.findIndex((user) => user.id === req.params.userId);
+  const oldUser = usersArray[index];
+  const updatedUser = { ...oldUser, ...req.body, updatedAt: new Date() };
+  usersArray[index] = updatedUser;
+  fs.writeFileSync(usersJSONPath, JSON.stringify(usersArray));
+  res.send(updatedUser);
 });
 
 usersRouter.delete("/:userId", (req, res) => {
-  res.send(" /users");
+  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
+  const remainingUsers = usersArray.filter(
+    (user) => user.id !== req.params.userId
+  );
+  fs.writeFileSync(usersJSONPath, JSON.stringify(remainingUsers));
+  res.status(204).send();
 });
 
 export default usersRouter;
