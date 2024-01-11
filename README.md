@@ -1,4 +1,4 @@
-This is a redo of the second day of Backend. These are the steps with comments:
+This is a redo of the second day of Backend. It's not using a real data base. These are the steps with comments:
 
 1. npm init -y (builds the package.json)
 2. npm i express
@@ -7,6 +7,8 @@ This is a redo of the second day of Backend. These are the steps with comments:
 5. configure package.json
 6. create main/server file
 7. npm run dev
+8. setup the endpoints
+9. npm i express-list-endpoints
 
 Info pages:
 
@@ -23,3 +25,6 @@ Example of folder/file structure:
 
 - src folder:
   --> server.js (ONE file that is going to be executed)
+  --> api folder
+  --> users folder
+  --> index.js

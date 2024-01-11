@@ -12,7 +12,9 @@
   "author": "Eleni Kellermann",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "express-list-endpoints": "^6.0.0",
+    "uniqid": "^5.4.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
