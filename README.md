@@ -1,5 +1,7 @@
 This is a redo of the second day of Backend. It's not using a real data base. These are the steps with comments:
 
+Day one:
+
 1. npm init -y (builds the package.json)
 2. npm i express
 3. .gitignore for /node_modules
@@ -9,6 +11,8 @@ This is a redo of the second day of Backend. It's not using a real data base. Th
 7. npm run dev
 8. setup the endpoints
 9. npm i express-list-endpoints
+
+Day two, middlewares:
 
 Info pages:
 
