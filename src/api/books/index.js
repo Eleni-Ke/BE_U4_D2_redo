@@ -3,6 +3,7 @@ import fs from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import uniqid from "uniqid";
+import createHttpError from "http-errors";
 
 const booksRouter = Express.Router();
 
@@ -15,7 +16,7 @@ const getBooks = () => JSON.parse(fs.readFileSync(booksJSONPath));
 const writeBooks = (books) =>
   fs.writeFileSync(booksJSONPath, JSON.stringify(books));
 
-booksRouter.post("/", (req, res) => {
+booksRouter.post("/", (req, res, next) => {
   const books = getBooks();
   const newBook = {
     ...req.body,
@@ -30,32 +31,72 @@ booksRouter.post("/", (req, res) => {
   res.send();
 });
 
-booksRouter.get("/", (req, res) => {
+booksRouter.get("/", (req, res, next) => {
   const books = getBooks();
+  if (req.query && req.query.category) {
+    const filteredBooks = books.filter(
+      (book) => book.category === req.query.category
+    );
+    res.send(filteredBooks);
+  }
   res.send(books);
 });
 
-booksRouter.get("/:bookId", (req, res) => {
-  const books = getBooks();
-  const book = books.find((book) => book.id === re.params.bookId);
-  res.send(book);
+booksRouter.get("/:bookId", (req, res, next) => {
+  try {
+    const books = getBooks();
+
+    const book = books.find((book) => book.id === re.params.bookId);
+    if (book) {
+      res.send(book);
+    } else {
+      next(
+        createHttpError(404, `Book with id ${req.params.bookId} not found!`)
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
-booksRouter.put("/:bookId", (req, res) => {
-  const books = getBooks();
-  const index = books.findIndex((book) => book.id === req.params.bookId);
-  const oldBook = books[index];
-  const updatedBook = { ...oldBook, ...req.body, updatedAt: new Date() };
-  books[index] = updatedBook;
-  writeBooks(books);
-  res.send(updatedBook);
+booksRouter.put("/:bookId", (req, res, next) => {
+  try {
+    const books = getBooks();
+
+    const index = books.findIndex((book) => book.id === req.params.bookId);
+    if (index !== -1) {
+      const oldBook = books[index];
+      const updatedBook = { ...oldBook, ...req.body, updatedAt: new Date() };
+      books[index] = updatedBook;
+      writeBooks(books);
+      res.send(updatedBook);
+    } else {
+      next(
+        createHttpError(404, `Book with id ${req.params.bookId} not found!`)
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
-booksRouter.delete("/:bookId", (req, res) => {
-  const books = getBooks();
-  const remainingBooks = books.filter((book) => book.id !== req.params.bookId);
-  writeBooks(remainingBooks);
-  res.status(204).send();
+booksRouter.delete("/:bookId", (req, res, next) => {
+  try {
+    const books = getBooks();
+    const remainingBooks = books.filter(
+      (book) => book.id !== req.params.bookId
+    );
+    if (books.length !== remainingBooks.length) {
+      writeBooks(remainingBooks);
+      res.status(204).send();
+    } else {
+      next(
+        createHttpError(404, `Book with id ${req.params.bookId} not found!`)
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default booksRouter;

@@ -14,6 +14,8 @@ Day one:
 
 Day two, middlewares:
 
+1. npm i http-errors
+
 Info pages:
 
 - expressjs.com (documentation and current version)
