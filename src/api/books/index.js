@@ -16,7 +16,12 @@ const getBooks = () => JSON.parse(fs.readFileSync(booksJSONPath));
 const writeBooks = (books) =>
   fs.writeFileSync(booksJSONPath, JSON.stringify(books));
 
-booksRouter.post("/", (req, res, next) => {
+const aRandomMiddleware = (req, res, next) => {
+  console.log("I am a Random middleware!");
+  next();
+};
+
+booksRouter.post("/", aRandomMiddleware, (req, res, next) => {
   const books = getBooks();
   const newBook = {
     ...req.body,
@@ -31,7 +36,7 @@ booksRouter.post("/", (req, res, next) => {
   res.send();
 });
 
-booksRouter.get("/", (req, res, next) => {
+booksRouter.get("/", aRandomMiddleware, (req, res, next) => {
   const books = getBooks();
   if (req.query && req.query.category) {
     const filteredBooks = books.filter(
@@ -42,7 +47,7 @@ booksRouter.get("/", (req, res, next) => {
   res.send(books);
 });
 
-booksRouter.get("/:bookId", (req, res, next) => {
+booksRouter.get("/:bookId", aRandomMiddleware, (req, res, next) => {
   try {
     const books = getBooks();
 
