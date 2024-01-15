@@ -4,6 +4,7 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import uniqid from "uniqid";
 import createHttpError from "http-errors";
+import { checkBookSchema, triggerBadRequest } from "./validation.js";
 
 const booksRouter = Express.Router();
 
@@ -21,20 +22,26 @@ const aRandomMiddleware = (req, res, next) => {
   next();
 };
 
-booksRouter.post("/", aRandomMiddleware, (req, res, next) => {
-  const books = getBooks();
-  const newBook = {
-    ...req.body,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    id: uniqid(),
-  };
-  books.push(newBook);
-  writeBooks(books);
-  res.status(201).send({ id: newBook.id });
+booksRouter.post(
+  "/",
+  aRandomMiddleware,
+  checkBookSchema,
+  triggerBadRequest,
+  (req, res, next) => {
+    const books = getBooks();
+    const newBook = {
+      ...req.body,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      id: uniqid(),
+    };
+    books.push(newBook);
+    writeBooks(books);
+    res.status(201).send({ id: newBook.id });
 
-  res.send();
-});
+    res.send();
+  }
+);
 
 booksRouter.get("/", aRandomMiddleware, (req, res, next) => {
   const books = getBooks();
