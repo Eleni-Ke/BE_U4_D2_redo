@@ -12,6 +12,7 @@
   "author": "Eleni Kellermann",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-list-endpoints": "^6.0.0",
     "express-validator": "^6.15.0",

@@ -9,6 +9,7 @@ import {
   unauthorizedHandler,
 } from "./api/errorsHandler.js";
 import usersRouter from "./api/users/index.js";
+import cors from "cors";
 
 const server = Express();
 const port = 3001;
@@ -31,6 +32,7 @@ const policeOfficerMiddleware = (req, res, next) => {
   }
 };
 
+server.use(cors());
 server.use(loggerMiddleware);
 server.use(policeOfficerMiddleware);
 server.use(Express.json());

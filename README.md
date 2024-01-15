@@ -16,6 +16,10 @@ Day two, middlewares:
 
 1. npm i http-errors
 
+Day three, cors:
+
+1. npm i cors
+
 Info pages:
 
 - expressjs.com (documentation and current version)
