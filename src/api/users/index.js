@@ -15,48 +15,85 @@ import { getUsers, writeUsers } from "../../lib/fs-tools.js";
 
 const usersRouter = Express.Router();
 
-usersRouter.post("/", async (req, res) => {
-  const newUser = {
-    ...req.body,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    id: uniqid(),
-  };
-  const users = await getUsers();
-  users.push(newUser);
-  await writeUsers(users);
-  res.status(201).send({ id: newUser.id });
+usersRouter.post("/", async (req, res, next) => {
+  try {
+    const newUser = {
+      ...req.body,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      id: uniqid(),
+    };
+    const users = await getUsers();
+    users.push(newUser);
+    await writeUsers(users);
+    res.status(201).send({ id: newUser.id });
+  } catch (error) {
+    next(error);
+  }
 });
 
-usersRouter.get("/", async (req, res) => {
-  const fileContentAsBuffer = await getUsers();
-  const users = JSON.parse(fileContentAsBuffer);
-  res.send(users);
+usersRouter.get("/", async (req, res, next) => {
+  try {
+    const users = await getUsers();
+    res.send(users);
+  } catch (error) {
+    next(error);
+  }
 });
 
-usersRouter.get("/:userId", async (req, res) => {
-  const usersArray = await getUsers();
-  const user = usersArray.find((user) => user.id === req.params.userId);
-  res.send(user);
+usersRouter.get("/:userId", async (req, res, next) => {
+  try {
+    const usersArray = await getUsers();
+    const user = usersArray.find((user) => user.id === req.params.userId);
+    if (user) {
+      res.send(user);
+    } else {
+      res
+        .status(404)
+        .send({ message: `User with id ${req.params.userId} not found!` });
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
-usersRouter.put("/:userId", async (req, res) => {
-  const usersArray = await getUsers();
-  const index = usersArray.findIndex((user) => user.id === req.params.userId);
-  const oldUser = usersArray[index];
-  const updatedUser = { ...oldUser, ...req.body, updatedAt: new Date() };
-  usersArray[index] = updatedUser;
-  await writeUsers(usersArray);
-  res.send(updatedUser);
+usersRouter.put("/:userId", async (req, res, next) => {
+  try {
+    const usersArray = await getUsers();
+    const index = usersArray.findIndex((user) => user.id === req.params.userId);
+    if (index !== -1) {
+      const oldUser = usersArray[index];
+      const updatedUser = { ...oldUser, ...req.body, updatedAt: new Date() };
+      usersArray[index] = updatedUser;
+      await writeUsers(usersArray);
+      res.send(updatedUser);
+    } else {
+      res
+        .status(404)
+        .send({ message: `User with id ${req.params.userId} not found!` });
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
-usersRouter.delete("/:userId", async (req, res) => {
-  const usersArray = await getUsers();
-  const remainingUsers = usersArray.filter(
-    (user) => user.id !== req.params.userId
-  );
-  await writeUsers(remainingUsers);
-  res.status(204).send();
+usersRouter.delete("/:userId", async (req, res, next) => {
+  try {
+    const usersArray = await getUsers();
+    const remainingUsers = usersArray.filter(
+      (user) => user.id !== req.params.userId
+    );
+    if (remainingUsers.length !== usersArray.length) {
+      await writeUsers(remainingUsers);
+      res.status(204).send();
+    } else {
+      next(
+        createHttpError(404, `User with id ${req.params.userId} not found!`)
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default usersRouter;

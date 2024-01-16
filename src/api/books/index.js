@@ -13,11 +13,10 @@ const aRandomMiddleware = (req, res, next) => {
 
 booksRouter.post(
   "/",
-  aRandomMiddleware,
   checkBookSchema,
   triggerBadRequest,
-  (req, res, next) => {
-    const books = getBooks();
+  async (req, res, next) => {
+    const books = await getBooks();
     const newBook = {
       ...req.body,
       createdAt: new Date(),
@@ -25,15 +24,15 @@ booksRouter.post(
       id: uniqid(),
     };
     books.push(newBook);
-    writeBooks(books);
+    await writeBooks(books);
     res.status(201).send({ id: newBook.id });
 
     res.send();
   }
 );
 
-booksRouter.get("/", aRandomMiddleware, (req, res, next) => {
-  const books = getBooks();
+booksRouter.get("/", aRandomMiddleware, async (req, res, next) => {
+  const books = await getBooks();
   if (req.query && req.query.category) {
     const filteredBooks = books.filter(
       (book) => book.category === req.query.category
@@ -43,9 +42,9 @@ booksRouter.get("/", aRandomMiddleware, (req, res, next) => {
   res.send(books);
 });
 
-booksRouter.get("/:bookId", aRandomMiddleware, (req, res, next) => {
+booksRouter.get("/:bookId", aRandomMiddleware, async (req, res, next) => {
   try {
-    const books = getBooks();
+    const books = await getBooks();
 
     const book = books.find((book) => book.id === re.params.bookId);
     if (book) {
@@ -60,16 +59,16 @@ booksRouter.get("/:bookId", aRandomMiddleware, (req, res, next) => {
   }
 });
 
-booksRouter.put("/:bookId", (req, res, next) => {
+booksRouter.put("/:bookId", async (req, res, next) => {
   try {
-    const books = getBooks();
+    const books = await getBooks();
 
     const index = books.findIndex((book) => book.id === req.params.bookId);
     if (index !== -1) {
       const oldBook = books[index];
       const updatedBook = { ...oldBook, ...req.body, updatedAt: new Date() };
       books[index] = updatedBook;
-      writeBooks(books);
+      await writeBooks(books);
       res.send(updatedBook);
     } else {
       next(
@@ -81,14 +80,14 @@ booksRouter.put("/:bookId", (req, res, next) => {
   }
 });
 
-booksRouter.delete("/:bookId", (req, res, next) => {
+booksRouter.delete("/:bookId", async (req, res, next) => {
   try {
-    const books = getBooks();
+    const books = await getBooks();
     const remainingBooks = books.filter(
       (book) => book.id !== req.params.bookId
     );
     if (books.length !== remainingBooks.length) {
-      writeBooks(remainingBooks);
+      await writeBooks(remainingBooks);
       res.status(204).send();
     } else {
       next(

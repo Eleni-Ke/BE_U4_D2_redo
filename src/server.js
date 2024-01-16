@@ -10,6 +10,7 @@ import {
 } from "./api/errorsHandler.js";
 import usersRouter from "./api/users/index.js";
 import cors from "cors";
+import filesRouter from "./api/files/index.js";
 
 const server = Express();
 const port = 3001;
@@ -40,6 +41,7 @@ server.use(Express.json());
 // ********************** ENDPOINTS **********************
 server.use("/users", usersRouter);
 server.use("/books", booksRouter);
+server.use("/files", filesRouter);
 
 // ********************** ERROR HANDLERS **********************
 
