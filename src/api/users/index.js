@@ -10,59 +10,52 @@
 */
 
 import Express from "express";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
 import uniqid from "uniqid";
+import { getUsers, writeUsers } from "../../lib/fs-tools.js";
 
 const usersRouter = Express.Router();
 
-const usersJSONPath = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "users.json"
-);
-
-usersRouter.post("/", (req, res) => {
+usersRouter.post("/", async (req, res) => {
   const newUser = {
     ...req.body,
     createdAt: new Date(),
     updatedAt: new Date(),
     id: uniqid(),
   };
-  const users = JSON.parse(fs.readFileSync(usersJSONPath));
+  const users = await getUsers();
   users.push(newUser);
-  fs.writeFileSync(usersJSONPath, JSON.stringify(users));
+  await writeUsers(users);
   res.status(201).send({ id: newUser.id });
 });
 
-usersRouter.get("/", (req, res) => {
-  const fileContentAsBuffer = fs.readFileSync(usersJSONPath);
+usersRouter.get("/", async (req, res) => {
+  const fileContentAsBuffer = await getUsers();
   const users = JSON.parse(fileContentAsBuffer);
   res.send(users);
 });
 
-usersRouter.get("/:userId", (req, res) => {
-  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
+usersRouter.get("/:userId", async (req, res) => {
+  const usersArray = await getUsers();
   const user = usersArray.find((user) => user.id === req.params.userId);
   res.send(user);
 });
 
-usersRouter.put("/:userId", (req, res) => {
-  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
+usersRouter.put("/:userId", async (req, res) => {
+  const usersArray = await getUsers();
   const index = usersArray.findIndex((user) => user.id === req.params.userId);
   const oldUser = usersArray[index];
   const updatedUser = { ...oldUser, ...req.body, updatedAt: new Date() };
   usersArray[index] = updatedUser;
-  fs.writeFileSync(usersJSONPath, JSON.stringify(usersArray));
+  await writeUsers(usersArray);
   res.send(updatedUser);
 });
 
-usersRouter.delete("/:userId", (req, res) => {
-  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
+usersRouter.delete("/:userId", async (req, res) => {
+  const usersArray = await getUsers();
   const remainingUsers = usersArray.filter(
     (user) => user.id !== req.params.userId
   );
-  fs.writeFileSync(usersJSONPath, JSON.stringify(remainingUsers));
+  await writeUsers(remainingUsers);
   res.status(204).send();
 });
 

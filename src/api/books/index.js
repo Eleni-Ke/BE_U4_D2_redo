@@ -1,21 +1,10 @@
 import Express from "express";
-import fs from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
 import uniqid from "uniqid";
 import createHttpError from "http-errors";
 import { checkBookSchema, triggerBadRequest } from "./validation.js";
+import { getBooks, writeBooks } from "../../lib/fs-tools.js";
 
 const booksRouter = Express.Router();
-
-const booksJSONPath = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "books.json"
-);
-
-const getBooks = () => JSON.parse(fs.readFileSync(booksJSONPath));
-const writeBooks = (books) =>
-  fs.writeFileSync(booksJSONPath, JSON.stringify(books));
 
 const aRandomMiddleware = (req, res, next) => {
   console.log("I am a Random middleware!");

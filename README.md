@@ -19,6 +19,7 @@ Day two, middlewares:
 Day three, cors:
 
 1. npm i cors
+2. npm i fs-extra
 
 Info pages:
 
