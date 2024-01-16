@@ -11,9 +11,12 @@ import {
 import usersRouter from "./api/users/index.js";
 import cors from "cors";
 import filesRouter from "./api/files/index.js";
+import { join } from "path";
 
 const server = Express();
 const port = 3001;
+
+const publicFolderPath = join(process.cwd(), "./public");
 
 // ************************** MIDDLEWARES *********************
 const loggerMiddleware = (req, res, next) => {
@@ -33,6 +36,7 @@ const policeOfficerMiddleware = (req, res, next) => {
   }
 };
 
+server.use(Express.static(publicFolderPath));
 server.use(cors());
 server.use(loggerMiddleware);
 server.use(policeOfficerMiddleware);

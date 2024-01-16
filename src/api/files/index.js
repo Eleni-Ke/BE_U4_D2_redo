@@ -21,12 +21,19 @@ filesRouter.post(
   }
 );
 
-filesRouter.post("/multiple", multer().array(), async (req, res, next) => {
-  try {
-    res.send({ message: "Files uploaded!" });
-  } catch (error) {
-    next(error);
+filesRouter.post(
+  "/:userId/multiple",
+  multer().array(),
+  async (req, res, next) => {
+    try {
+      await Promise.all(
+        req.files.map((file) => saveUsersAvatar(file.originalname, file.buffer))
+      );
+      res.send({ message: "Files uploaded!" });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 export default filesRouter;
